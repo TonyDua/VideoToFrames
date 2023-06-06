@@ -11,7 +11,7 @@ import threading
 class VideoToFrames:
     def __init__(self, master):
         self.master = master
-        master.title("视频转序列帧 beta v0.2")
+        master.title("视频转序列帧 beta v0.3")
         master.geometry("600x400")
         self.file_label = tk.Label(master, text="选择视频文件:")
         self.file_label.grid(row=0, column=0, columnspan=2, sticky='w', padx=10, pady=5)
@@ -66,25 +66,14 @@ class VideoToFrames:
 
     def select_output_dir(self):
         # 选择文件夹并判断是否为空
-
-        while not self.outputdir:
-            self.outputdir = filedialog.askdirectory(title="选择文件夹", parent=root)
-            self.output_label.config(text="选择的输出文件夹：" + self.outputdir)
-            if self.outputdir and os.listdir(self.outputdir):
+        self.outputdir = filedialog.askdirectory(title="选择文件夹", parent=root)
+        if self.outputdir:
+            if os.listdir(self.outputdir):
                 tk.messagebox.showwarning("警告", "文件夹内有其他文件，请重新选择空文件夹")
-                self.outputdir = ""
-
+            else:
+                self.output_label.config(text="选择的输出文件夹：" + self.outputdir)
         # 输出选择的文件夹路径
         print(self.outputdir)
-        # self.outputdir = filedialog.askdirectory(title="选择输出文件夹",parent=root)
-        # # 如果选择了文件夹
-        # if self.outputdir:
-        #     # 判断文件夹是否为空
-        #     if os.listdir(self.outputdir):
-        #         print("文件夹不为空")
-        #     else:
-        #         print("文件夹为空")
-        # self.output_label.config(text="选择的输出文件夹：" + self.outputdir)
 
     def select_file(self):
         self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="选择文件",
