@@ -3,44 +3,70 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-#from ttk import Progressbar
+# from ttk import Progressbar
 import subprocess
 import threading
+
 
 class VideoToFrames:
     def __init__(self, master):
         self.master = master
-        master.title("视频转序列帧 beta v0.1")
-        master.geometry("400x400")
-        self.file_label = tk.Label(master, text="选择视频文件")
-        self.file_label.pack()
+        master.title("视频转序列帧 beta v0.2")
+        master.geometry("600x400")
+        self.file_label = tk.Label(master, text="选择视频文件:")
+        self.file_label.grid(row=0, column=0, columnspan=2, sticky='w', padx=10, pady=5)
 
         self.file_button = tk.Button(master, text="选择文件", command=self.select_file)
-        self.file_button.pack()
+        self.file_button.grid(row=0, column=2, sticky='e', padx=10, pady=5)
 
-        self.fps_label = tk.Label(master, text="帧速率:")
-        self.fps_label.pack()
-
-        self.size_label = tk.Label(master, text="文件大小:")
-        self.size_label.pack()
-
-        self.frames_label = tk.Label(master, text="预计序列帧数量:")
-        self.frames_label.pack()
-
-        self.output_label = tk.Label(master, text="选择输出文件夹")
-        self.output_label.pack()
+        self.output_label = tk.Label(master, text="选择输出文件夹:")
+        self.output_label.grid(row=1, column=0, columnspan=2, sticky='w', padx=10, pady=5)
 
         self.output_button = tk.Button(master, text="选择输出文件夹", command=self.select_output_dir)
-        self.output_button.pack()
+        self.output_button.grid(row=1, column=2, sticky='e', padx=10, pady=5)
+
+        self.output_name_label = tk.Label(master, text="输出文件名(英文):")
+        self.output_name_label.grid(row=2, column=0, sticky='w', padx=10, pady=5)
+
+        self.output_name_input = tk.Entry(master)
+        self.output_name_input.grid(row=2, column=1, padx=10, pady=5)
+        self.output_name_input.bind("<Return>", self.write_output_name)
+
+        self.output_file_type_combo = ttk.Combobox(master, values=["png", "jpg", "bmp"])
+        self.output_file_type_combo.set("png")
+        self.output_file_type_combo.grid(row=2, column=2, padx=10, pady=5)
+
+        self.output_path_label = tk.Label(master, text="输出路径和文件名:")
+        self.output_path_label.grid(row=3, column=0, columnspan=2, sticky='w', padx=10, pady=3)
+
+        self.fps_label = tk.Label(master, text="帧速率:")
+        self.fps_label.grid(row=4, column=0, columnspan=2, sticky='w', padx=10, pady=3)
+
+        self.size_label = tk.Label(master, text="文件大小:")
+        self.size_label.grid(row=5, column=0, columnspan=2, sticky='w', padx=10, pady=3)
+
+        self.frames_label = tk.Label(master, text="预计序列帧数量:")
+        self.frames_label.grid(row=6, column=0, columnspan=2, sticky='w', padx=10, pady=3)
 
         self.start_button = tk.Button(master, text="开始转换", command=self.start_conversion)
-        self.start_button.pack()
+        self.start_button.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
 
         self.progress_label = tk.Label(master, text="")
-        self.progress_label.pack()
+        self.progress_label.grid(row=8, column=0, padx=10, pady=10)
+
+        self.process = None
+        self.outputdir = ""
+
+    def write_output_name(self, event):
+        output_name = self.output_name_input.get()
+        output_file_type = self.output_file_type_combo.get()
+        outputfilename = self.outputdir + '/' + output_name + '_%d.' + output_file_type
+        print(outputfilename)
+        self.output_path_label.config(text="输出路径和文件名:" + outputfilename)
+
     def select_output_dir(self):
         # 选择文件夹并判断是否为空
-        self.outputdir = ""
+
         while not self.outputdir:
             self.outputdir = filedialog.askdirectory(title="选择文件夹", parent=root)
             self.output_label.config(text="选择的输出文件夹：" + self.outputdir)
@@ -59,6 +85,7 @@ class VideoToFrames:
         #     else:
         #         print("文件夹为空")
         # self.output_label.config(text="选择的输出文件夹：" + self.outputdir)
+
     def select_file(self):
         self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="选择文件",
                                                    filetypes=(("MP4 files", "*.mp4"), ("AVI files", "*.avi")))
@@ -81,11 +108,11 @@ class VideoToFrames:
             return
 
         # output_dir = os.path.dirname(self.filename)
-        output_dir =self.outputdir
-        output_name = os.path.splitext(os.path.basename(self.filename))[0]
-        output_path = os.path.join(output_dir, output_name + '_%d.png')
-
-
+        output_dir = self.outputdir
+        # output_name = os.path.splitext(os.path.basename(self.filename))[0]
+        output_name = self.output_name_input.get()
+        output_file_type = self.output_file_type_combo.get()
+        output_path = os.path.join(output_dir, output_name + '_%d.' + output_file_type)
 
         # Check if FFmpeg is installed
         try:
@@ -94,7 +121,7 @@ class VideoToFrames:
             print(command)
 
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            t = threading.Thread(target=self.process)
+            t = threading.Thread(target=self.process.communicate)
             t.start()
             total_frames = int(self.frames_label.cget("text").split(": ")[1])
             current_frame = 0
@@ -133,8 +160,9 @@ class VideoToFrames:
             done_button = tk.Button(done_window, text="Done", command=done_window.destroy)
             done_button.pack()
         except FileNotFoundError:
-        #FFmpeg is not installed, download and install it
-           tk.messagebox.showwarning("警告", "FFmpeg没有安装，请安装后，将FFmpeg添加到系统变量后重试！！")
+            # FFmpeg is not installed, download and install it
+            tk.messagebox.showwarning("警告", "FFmpeg没有安装，请安装后，将FFmpeg添加到系统变量后重试！！")
+
 
 root = tk.Tk()
 video_to_frames = VideoToFrames(root)
