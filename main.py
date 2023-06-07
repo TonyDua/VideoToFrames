@@ -11,7 +11,7 @@ import threading
 class VideoToFrames:
     def __init__(self, master):
         self.master = master
-        master.title("视频转序列帧 beta v0.3")
+        master.title("视频转序列帧 beta v0.4")
         master.geometry("600x400")
         self.file_label = tk.Label(master, text="选择视频文件:")
         self.file_label.grid(row=0, column=0, columnspan=2, sticky='w', padx=10, pady=5)
@@ -110,8 +110,9 @@ class VideoToFrames:
             print(command)
 
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            t = threading.Thread(target=self.process.communicate)
-            t.start()
+            #t = threading.Thread(target=self.process.communicate)
+            (stdout, stderr) = self.process.communicate()
+            #t.start()
             total_frames = int(self.frames_label.cget("text").split(": ")[1])
             current_frame = 0
 
@@ -124,9 +125,9 @@ class VideoToFrames:
             progress_label.pack()
 
             # 读取ffmpeg输出并更新进度条
-            while True:
+            while self.process.poll() is None:
                 output = self.process.stdout.readline()
-                if self.process.poll() is not None:
+                if output == '' and self.process.poll() is not None:
                     break
                 if output:
                     output_str = output.decode('utf-8').strip()
