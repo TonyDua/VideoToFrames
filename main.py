@@ -77,7 +77,7 @@ class VideoToFrames:
 
     def select_file(self):
         self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="选择文件",
-                                                   filetypes=(("MP4 files", "*.mp4"), ("AVI files", "*.avi")))
+                                                   filetypes=(("MOV files", "*.mov"), ("MP4 files", "*.mp4"), ("AVI files", "*.avi")))
         self.file_label.config(text="选择的视频文件: " + self.filename)
 
         # 获取视频信息
