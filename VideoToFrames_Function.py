@@ -5,7 +5,7 @@ import os
 class VideoToFrames:
     def __init__(self):
         # 快速生成字典
-        self.seq = ('videofiledir',
+        self.seq1 = ('videofiledir',
                     'videofilename',
                     'videofiletype',
                     'viewimgpath',
@@ -16,8 +16,20 @@ class VideoToFrames:
                     'format',
                     'resolution')
 
-        self.videofileinfo = dict.fromkeys(self.seq)
+        self.videofileinfo = dict.fromkeys(self.seq1)
 
+        # 快速生成字典
+        self.seq2 = ('videofile',
+                    'outputdir',
+                    'outputname',
+                    'autocreateseqdir',
+                    'seqframesnum',
+                    'splitframe',
+                    'splitframenum',
+                    )
+
+        self.video_convert_info = dict.fromkeys(self.seq2)
+        #self.video_convert_setting = self.video_convert_info
     def getfilesize(self, videofile):
 
         fsize = os.path.getsize(videofile)
@@ -122,13 +134,13 @@ class VideoToFrames:
     def proess_test(self, videofile):
         print(videofile)
 
-    def start_convert(self, videofile, output_dir, outputname, outputfiletype, autocreateseqdir=False, seqframenum=3,
-                      spliteframes=False, spliteframenum=3):
+    def start_convert(self):
         try:
             # 使用ffmpeg将视频转换为序列帧
-            output_path = output_dir + "/" + outputname + outputfiletype
-            command = 'ffmpeg' + ' -i ' + videofile + ' -qscale:v ' + '2 ' + output_path
-            print(command)
+            print('VideoToFrames_Function收到的设置是：' + self.video_convert_info)
+            # output_path = output_dir + "/" + outputname + outputfiletype
+            # command = 'ffmpeg' + ' -i ' + videofile + ' -qscale:v ' + '2 ' + output_path
+            # print(command)
 
             # self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             # (stdout, stderr) = self.process.communicate()
@@ -158,8 +170,6 @@ class VideoToFrames:
             #             self.progress_label.config(text=str(current_frame) + "/" + str(total_frames) +
             #                                             "   输出完成百分比: " + str(
             #                 round(current_frame / total_frames * 100, 2)) + "%")
-
-
 
         except FileNotFoundError:
             # FFmpeg is not installed, download and install it

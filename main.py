@@ -107,6 +107,7 @@ class VideoToFrames:
         try:
             # 使用ffmpeg将视频转换为序列帧
             command = 'ffmpeg' + ' -i ' + self.filename + ' -qscale:v ' + '2 ' + output_path
+            command2 = 'ffmpeg' + ' -i ' + self.filename + ' -qscale:v ' + '2 ' + output_path
             print(command)
 
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
